@@ -103,7 +103,7 @@ testing &lt;- trainSetClean[-intrain,]</code></pre>
 </div>
 <div id="prediction-modelling" class="section level2">
 <h2>Prediction Modelling</h2>
-<p>Random Forests technique was chosen because it is widely known to produce accurate prediction. As shown below, with 51 independent variables and 5-fold cross-validation, the model managed to achieve a high accuracy of 0.994% with 95% confidence interval of (0.991, 0.995). The Kappa value of 0.992 signify a high level of agreement between the classification predicted by the Random Forests model and the actual classification of exercise in the validation data set (subset of the given training data set).</p>
+<p>Random Forests technique was chosen because it is widely known to produce accurate prediction. As shown below, with 51 independent variables and 5-fold cross-validation, the model managed to achieve a high accuracy of 0.994 with 95% confidence interval of (0.991, 0.995). The Kappa value of 0.992 signify a high level of agreement between the classification predicted by the Random Forests model and the actual classification of exercise in the validation data set (subset of the given training data set).</p>
 <pre class="r"><code>fitControl_rf&lt;-trainControl(method=&quot;cv&quot;, number=5, allowParallel=T, verbose=T)
 
 modfit_rf&lt;-train(classe ~ ., method=&quot;rf&quot;, trControl=fitControl_rf, data=training, verbose=F)</code></pre>
