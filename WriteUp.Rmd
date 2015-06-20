@@ -1,0 +1,94 @@
+
+#Practical Machine Learning - Qualitative Activity Recognition of Weight Lifting Exercises
+
+##Synopsis:
+Using devices such as Jawbone Up, Nike FuelBand, and Fitbit, it is now possible to collect a large amount of data about personal activity e.g. muscle strengthening exercises.
+
+For this study, six male participants aged between 20-28 years and with little weight lifting experience were asked to perform one set of 10 repetitions of the Unilateral Dumbbell Biceps Curl in five different fashions: exactly according to the specification (Class A), throwing the elbows to the front (Class B), lifting the dumbbell
+only halfway (Class C), lowering the dumbbell only halfway
+(Class D) and throwing the hips to the front (Class E).
+
+The aim of this project is to develop a predictive model for class of exercise using the Weight Lifting Exercise Dataset. More information is available from the website here: http://groupware.les.inf.puc-rio.br/har.  
+
+##Data Exploration
+```{r}
+#Reading the train and test data set
+library(RCurl)
+trainURL <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+x <- getURL(trainURL, ssl.verifypeer = FALSE)
+trainSet <- read.csv(textConnection(x), header=T, na.strings=c("NA", "#DIV/0!"))
+
+testURL <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+y <- getURL(testURL, ssl.verifypeer = FALSE)
+testSet <- read.csv(textConnection(y), header=T, na.strings=c("NA", "#DIV/0!"))
+
+trainDim <- dim(trainSet)
+testDim <- dim(testSet)
+```
+The training data set consists of `r trainDim[1]` observations of `r trainDim[2]` variables. The test data set has `r testDim[1]` observations of `r testDim[1]` variables.
+
+```{r}
+summary(trainSet[,c(2,160)])
+```
+The breakdown of observations by user name and exercise class for the training data set is shown above. It can be seen that there are more Class A (executed according to specification) observations compared to the rest.
+
+```{r}
+trainSetNoNA <- trainSet[, apply(trainSet, 2, function(x) !any(is.na(x)))]
+
+trainSetClean <- trainSetNoNA[,-c(1:8)]
+
+testSetClean <- testSet[,names(trainSetClean[,-52])]
+```
+Records with at least one "NA" as well as time and user related information are excluded from the training data set. The test data set is also cleaned up accordingly.
+
+##Partition Of Training Data Set
+The given training data set was further partitioned into 70% training and 30% validation data. This validation data set is independent of the given test data set with `r testDim[1]` observations. 
+
+```{r, echo=FALSE}
+library(caret)
+set.seed(12345)
+```
+```{r}
+intrain  <- createDataPartition(y=trainSetClean$classe,p=0.70,list=FALSE)
+training <- trainSetClean[intrain,]
+testing <- trainSetClean[-intrain,]
+```
+
+##Prediction Modelling
+Random Forests technique was chosen because it is widely known to produce accurate prediction. As shown below, with 51 independent variables and 5-fold cross-validation, the model managed to achieve a high accuracy of 0.9934% with 95% confidence interval of (0.991, 0.9953). The Kappa value of 0.9916 signify a high level of agreement between the classification predicted by the Random Forests model and the actual classification of exercise in the validation data set (subset of the given training data set).
+
+```{r}
+fitControl_rf<-trainControl(method="cv", number=5, allowParallel=T, verbose=T)
+
+modfit_rf<-train(classe ~ ., method="rf", trControl=fitControl_rf, data=training, verbose=F)
+
+pred <- predict(modfit_rf, newdata=testing)
+confusionMatrix(pred, testing$classe)
+```
+
+##Prediction for Test Cases
+The prediction for the test data set of `r testDim[1]` observations is as below.
+
+```{r}
+predTestSet <- predict(modfit_rf, testSetClean)
+predTestSet
+```
+
+The below code was used to generate 20 individual files for project submission.
+```{r}
+getwd()
+
+pml_write_files = function(x){
+  n = length(x)
+  for(i in 1:n){
+    filename = paste0("problem_id_",i,".txt")
+    write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
+  }
+}
+
+pml_write_files(predTestSet)
+```
+
+##Reference
+[1] http://groupware.les.inf.puc-rio.br/har
+
