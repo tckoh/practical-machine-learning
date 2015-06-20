@@ -75,7 +75,7 @@ testSet &lt;- read.csv(textConnection(y), header=T, na.strings=c(&quot;NA&quot;,
 
 trainDim &lt;- dim(trainSet)
 testDim &lt;- dim(testSet)</code></pre>
-<p>The training data set consists of 19622 observations of 160 variables. The test data set has 20 observations of 20 variables.</p>
+<p>The training data set consists of 19622 observations of 160 variables. The test data set has 20 observations of 160 variables.</p>
 <pre class="r"><code>summary(trainSet[,c(2,160)])</code></pre>
 <pre><code>##     user_name    classe  
 ##  adelmo  :3892   A:5580  
@@ -103,7 +103,7 @@ testing &lt;- trainSetClean[-intrain,]</code></pre>
 </div>
 <div id="prediction-modelling" class="section level2">
 <h2>Prediction Modelling</h2>
-<p>Random Forests technique was chosen because it is widely known to produce accurate prediction. As shown below, with 51 independent variables and 5-fold cross-validation, the model managed to achieve a high accuracy of 0.9934% with 95% confidence interval of (0.991, 0.9953). The Kappa value of 0.9916 signify a high level of agreement between the classification predicted by the Random Forests model and the actual classification of exercise in the validation data set (subset of the given training data set).</p>
+<p>Random Forests technique was chosen because it is widely known to produce accurate prediction. As shown below, with 51 independent variables and 5-fold cross-validation, the model managed to achieve a high accuracy of 0.994% with 95% confidence interval of (0.991, 0.995). The Kappa value of 0.992 signify a high level of agreement between the classification predicted by the Random Forests model and the actual classification of exercise in the validation data set (subset of the given training data set).</p>
 <pre class="r"><code>fitControl_rf&lt;-trainControl(method=&quot;cv&quot;, number=5, allowParallel=T, verbose=T)
 
 modfit_rf&lt;-train(classe ~ ., method=&quot;rf&quot;, trControl=fitControl_rf, data=training, verbose=F)</code></pre>
